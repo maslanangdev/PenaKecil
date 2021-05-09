@@ -10,4 +10,4 @@ you have to install python and pyinstaller first
 
 the command
 
-`pyinstaller main_ui.py -p gs --add-data=..;LICENSE.txt`
+`pyinstaller main_ui.py`
