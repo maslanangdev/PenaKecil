@@ -82,7 +82,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_2.addWidget(self.label_6)
         self.specifyDPI = QtWidgets.QSpinBox(self.verticalLayoutWidget)
         self.specifyDPI.setMaximum(10000)
-        self.specifyDPI.setValue(300)
+        self.specifyDPI.setValue(96)
         self.verticalLayout_2.addWidget(self.specifyDPI)
         self.horizontalLayout = QtWidgets.QHBoxLayout()
         self.horizontalLayout.setObjectName("horizontalLayout")
@@ -176,13 +176,13 @@ class Ui_MainWindow(object):
                 name, ext = os.path.splitext(filename)
                 if ext == ".pdf":
                 # if c[:-4] == ".pdf":
-                    print(name+ext)
-                    a = f'gs\\gs9.53.3\\bin\\gswin32c.exe -sDEVICE=pdfwrite -dCompabilityLevel=1.4 -dPDFSETTINGS=/default -r{quality} -dNOPAUSE -dBATCH -sOutputFile="{name}_Q{quality}.pdf" "{c}"'
+                    print(name+ext)                    
+                    a = f'gs\\gs9.53.3\\bin\\gswin32c.exe -sDEVICE=pdfwrite -dCompabilityLevel=1.4 -dColorImageResolution={quality} -dPDFSETTINGS=/screen -dOptimize=true -dColorImageDownsampleType=/Average  -dNOPAUSE -dBATCH -sOutputFile="{name}_Q{quality}.pdf" "{c}"'
                     print(a)
                     os.system(a)
                 else:
                     img = Image.open(c)
-                    img.save(f"{name}_Q-{quality}.pdf", quality=80, optimize=True, progressive=True)
+                    img.save(f"{name}_Q-{quality}.pdf", quality=quality, optimize=True, progressive=True)
                 
                 processed = processed + 1
                 percentage = (processed/len(being_process_thing_list))*100
@@ -208,7 +208,7 @@ class Ui_MainWindow(object):
 
                 else:
                     img = Image.open(c)
-                    img.save(f"{name}_Q-{quality}.jpeg", quality=80, optimize=True, progressive=True)
+                    img.save(f"{name}_Q-{quality}.jpeg", quality=quality, optimize=True, progressive=True)
 
                 ext == ""
                     
@@ -225,16 +225,16 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "PenaKecil - A Front-End to Adjust PDF Quality"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "PenaKecil - A Front-End to Optimize Documents Size"))
         self.label.setText(_translate("MainWindow", "PenaKecil"))
-        self.label_2.setText(_translate("MainWindow", "A simple Ghostscript front-end to adjust PDF quality"))
+        self.label_2.setText(_translate("MainWindow", "A simple front-end to optimize documents size"))
         self.label_5.setText(_translate("MainWindow", "Files Queue : "))
         self.addPush.setText(_translate("MainWindow", "Add File"))
         self.label_4.setText(_translate("MainWindow", "Output Format : "))
         self.outputPath.setPlaceholderText(_translate("MainWindow", "Output file path goes here...."))
         self.outPush.setText(_translate("MainWindow", "Browse"))
         self.exportPush.setText(_translate("MainWindow", "Export !"))
-        self.label_3.setText(_translate("MainWindow", "PenaKecil 1.1 - PreAlpha0"))
+        self.label_3.setText(_translate("MainWindow", "PenaKecil 1.1 - PreAlpha1"))
 
 
 if __name__ == "__main__":
@@ -266,6 +266,9 @@ if __name__ == "__main__":
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
     '''
+
+
+
 
 
 
