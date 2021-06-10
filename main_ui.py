@@ -13,8 +13,13 @@ from PyQt5.QtWidgets import QFileDialog
 import subprocess
 import os
 import ntpath
+from notifypy import Notify
+import sys
+import random
 
 from PIL import Image
+
+import subprocess
 
 from pdf2image import convert_from_path
 
@@ -25,6 +30,9 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(424, 672)
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap("Icon.ico"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        MainWindow.setWindowIcon(icon)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.verticalLayoutWidget = QtWidgets.QWidget(self.centralwidget)
@@ -112,6 +120,7 @@ class Ui_MainWindow(object):
 
         self.removeList.clicked.connect(self.removeLEST)
 
+
   
   
         # formats = ["Screen (72 dpi)", 
@@ -144,6 +153,12 @@ class Ui_MainWindow(object):
         self.exportPush.clicked.connect(self.GAAAASSSSSS)
         self.outPush.clicked.connect(self.folderbrowser)
         self.outputPath.setText(os.path.expanduser("~") + "\Documents")
+
+    def runOrder(self, command):
+        stinfo = subprocess.STARTUPINFO()
+        stinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+        subprocess.Popen(command, startupinfo=stinfo, stdout=sys.stdout, stderr=sys.stdout).wait()
+
 
     def removeLEST(self):
         self.queueList.clear()
@@ -179,7 +194,8 @@ class Ui_MainWindow(object):
                     print(name+ext)                    
                     a = f'gs\\gs9.53.3\\bin\\gswin32c.exe -sDEVICE=pdfwrite -dCompabilityLevel=1.4 -dColorImageResolution={quality} -dPDFSETTINGS=/screen -dOptimize=true -dColorImageDownsampleType=/Average  -dNOPAUSE -dBATCH -sOutputFile="{name}_Q{quality}.pdf" "{c}"'
                     print(a)
-                    os.system(a)
+                    # os.system(a)
+                    self.runOrder(a)
                 else:
                     img = Image.open(c)
                     img.save(f"{name}_Q-{quality}.pdf", quality=quality, optimize=True, progressive=True)
@@ -204,7 +220,7 @@ class Ui_MainWindow(object):
 
                     a = f'gs\\gs9.53.3\\bin\\gswin32c.exe -sDEVICE=jpeg -dNOPAUSE -dBATCH -r{quality} -sOutputFile="{name}_page-%03d_Q-{quality}.jpeg" "{c}"'
                     print(a)
-                    os.system(a)
+                    self.runOrder(a)
 
                 else:
                     img = Image.open(c)
@@ -216,25 +232,69 @@ class Ui_MainWindow(object):
 
                 processed = processed + 1
                 percentage = (processed/len(being_process_thing_list))*100
-                self.progressBar.setValue(percentage) 
+                self.progressBar.setValue(percentage)
 
+        # messages = [
+        #     "THIS IS YOUR ORDER!",
+        #     "Take Care",
+        #     "Successful",
+        #     "Any other useful messages here?",
+        #     "This is notification",
+        #     "hello, anyone here?",
+        #     "YAAAAAHOOOOOOOOO",
+        #     "Java?",
+        #     "just some random messsage here",
+        #     "your random message here",
+        #     "here you go",
+        #     "errrr",
+        #     "just open it now",
+        # ]
 
-        
+        messages = [
+            "THIS IS YOUR ORDER!",
+            "Successful",
+            "Any other useful messages here?",
+            "This is a notification",
+            "YAAAAAHOOOOOOOOO",
+            "just some random messsage here",
+            "your random message here",
+            "here you go",
+        ]
 
+        notip = Notify()
+        notip.title = random.choice(messages)
+        notip.message = f"Processed {len(being_process_thing_list)} file(s)"
+        notip.application_name = "PenaKecil-PreAlpha"
+        notip.icon = "Icon.ico"
+        notip.send()
         
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "PenaKecil - A Front-End to Optimize Documents Size"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "PenaKecil - Optimize!"))
         self.label.setText(_translate("MainWindow", "PenaKecil"))
-        self.label_2.setText(_translate("MainWindow", "A simple front-end to optimize documents size"))
+        self.label_2.setText(_translate("MainWindow", "A Simple Front-End to Optimize Documents Size"))
         self.label_5.setText(_translate("MainWindow", "Files Queue : "))
         self.addPush.setText(_translate("MainWindow", "Add File"))
         self.label_4.setText(_translate("MainWindow", "Output Format : "))
         self.outputPath.setPlaceholderText(_translate("MainWindow", "Output file path goes here...."))
         self.outPush.setText(_translate("MainWindow", "Browse"))
         self.exportPush.setText(_translate("MainWindow", "Export !"))
-        self.label_3.setText(_translate("MainWindow", "PenaKecil 1.1 - PreAlpha1"))
+        self.label_3.setText(_translate("MainWindow", "PenaKecil 1.1 - PreAlpha2 BUILD-10062021"))
+
+
+# WIP : Threading for progressbar
+
+# class work(QtCore.QThread):
+#     _signal = QtCore.pyqtSignal(int)
+#     def __init__(self):
+#         super(Thread, self).__init__()
+    
+#     def __del__(self):
+#         self.wait()
+    
+#     def run(self):
+#         pass
 
 
 if __name__ == "__main__":
