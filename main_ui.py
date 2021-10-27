@@ -100,12 +100,12 @@ class ParvusCalamus(QMainWindow, Ui_MainWindow):
             for c in being_process_thing_list:
                 
                 filename = f"{self.outputPath.text()}\\{ntpath.basename(c)}"
-                filename = filename.encode("unicode_escape")
+                # filename = filename.encode("unicode_escape")
                 name, ext = os.path.splitext(filename)
-                if os.name != "nt":
-                    name = str(name)
-                    c.replace("\\", "/")
-                    name.replace("\\", "/")
+                # if os.name != "nt":
+                #     name = str(name)
+                #     c.replace("\\", "/")
+                #     name.replace("\\", "/")
 
                 print(name, "|", c)
                 if ext == ".pdf":
