@@ -2,9 +2,6 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QFileDialog
 
 class Ui_MainWindow(object):
-    def __init__(self):
-        self.pdfList = []
-
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(424, 672)
