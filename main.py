@@ -91,7 +91,7 @@ class ParvusCalamus(QMainWindow, Ui_MainWindow):
                         self.runOrder(a)
                     else:
                         print("notPDF")
-                        img = Image.open(c)
+                        img = Image.open(c).convert("RGB")
                         img.save(f"{name}_Q-{quality}.pdf", quality=quality, optimize=True, progressive=True)
 
             if self.qualityCombo.currentText() == "JPEG":
