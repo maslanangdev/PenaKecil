@@ -1,5 +1,5 @@
 from PenaKecil.PenaUI import Ui_MainWindow
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt6 import QtCore, QtGui, QtWidgets
 
 
 import subprocess
@@ -10,6 +10,7 @@ import sys
 import random
 
 from PIL import Image
+
 
 import subprocess
 
@@ -34,7 +35,7 @@ class Pena(Ui_MainWindow):
 
         self.initialize(MainWindow)
         
-        sys.exit(app.exec_())
+        sys.exit(app.exec())
 
 
     def runOrder(self, command):

@@ -1,5 +1,5 @@
-from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import QFileDialog
+from PyQt6 import QtCore, QtGui, QtWidgets
+from PyQt6.QtWidgets import QFileDialog
 import os
 
 class Ui_MainWindow(object):
@@ -10,7 +10,7 @@ class Ui_MainWindow(object):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(424, 672)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("Icon.ico"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(QtGui.QPixmap("Icon.ico"))
         MainWindow.setWindowIcon(icon)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
@@ -31,7 +31,7 @@ class Ui_MainWindow(object):
         self.label_2 = QtWidgets.QLabel(self.verticalLayoutWidget)
         self.label_2.setObjectName("label_2")
         self.verticalLayout_2.addWidget(self.label_2)
-        spacerItem = QtWidgets.QSpacerItem(20, 8, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
+        spacerItem = QtWidgets.QSpacerItem(20, 8)
         self.verticalLayout_2.addItem(spacerItem)
         self.label_5 = QtWidgets.QLabel(self.verticalLayoutWidget)
         self.label_5.setObjectName("label_5")
