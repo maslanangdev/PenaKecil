@@ -1,16 +1,17 @@
 from PyQt6 import QtCore, QtGui, QtWidgets
+from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import QFileDialog
 import os
 
 class Ui_MainWindow(object):
     def __init__(self):
-        self.pdfList = []
+        pass
 
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(424, 672)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("Icon.ico"))
+        icon.addPixmap(QtGui.QPixmap("calamus.ico"), state = QIcon.State.On)
         MainWindow.setWindowIcon(icon)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")

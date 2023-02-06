@@ -27,11 +27,14 @@ class Pena(Ui_MainWindow):
         # "JPEG MEDIUM", 
         # "JPEG LOW"]
 
+        self.pdfList = []
+
         import sys
         app = QtWidgets.QApplication(sys.argv)
         MainWindow = QtWidgets.QMainWindow()
         ui = self
         ui.setupUi(MainWindow)
+        
 
         self.initialize(MainWindow)
         
@@ -69,54 +72,77 @@ class Pena(Ui_MainWindow):
         quality = self.specifyDPI.value()
         print("mengProses . . .")
         processed = 0
-        if self.qualityCombo.currentText() == "PDF":
-            for c in being_process_thing_list:
-                filename = f"{self.outputPath.text()}\\{ntpath.basename(c)}"
-                name, ext = os.path.splitext(filename)
-                if ext == ".pdf":
-                # if c[:-4] == ".pdf":
-                    print(name+ext)                    
-                    a = f'gs\\gs9.53.3\\bin\\gswin32c.exe -sDEVICE=pdfwrite -dCompabilityLevel=1.4 -dColorImageResolution={quality} -dPDFSETTINGS=/screen -dOptimize=true -dColorImageDownsampleType=/Average  -dNOPAUSE -dBATCH -sOutputFile="{name}_Q{quality}.pdf" "{c}"'
-                    print(a)
-                    # os.system(a)
-                    self.runOrder(a)
-                else:
-                    img = Image.open(c)
-                    img.save(f"{name}_Q-{quality}.pdf", quality=quality, optimize=True, progressive=True)
+
+        match self.qualityCombo.currentText():
+            case "PDF":
+                for c in being_process_thing_list:
+                    filename = f"{self.outputPath.text()}\\{ntpath.basename(c)}"
+                    name, ext = os.path.splitext(filename)
+                    if ext == ".pdf":
+                    # if c[:-4] == ".pdf":
+                        print(name+ext)                    
+                        a = f'gs\\gs9.53.3\\bin\\gswin32c.exe -sDEVICE=pdfwrite -dCompabilityLevel=1.4 -dColorImageResolution={quality} -dPDFSETTINGS=/screen -dOptimize=true -dColorImageDownsampleType=/Average  -dNOPAUSE -dBATCH -sOutputFile="{name}_Q{quality}.pdf" "{c}"'
+                        print(a)
+                        # os.system(a)
+                        self.runOrder(a)
+                    else:
+                        img = Image.open(c)
+                        img.save(f"{name}_Q-{quality}.pdf", quality=quality, optimize=True, progressive=True)
                 
-                processed = processed + 1
-                percentage = (processed/len(being_process_thing_list))*100
-                self.progressBar.setValue(percentage)
+                    processed = processed + 1
+                    percentage = (processed/len(being_process_thing_list))*100
+                    self.progressBar.setValue(percentage)
+            case "JPEG":
+                for c in being_process_thing_list:
+                    filename = f"{self.outputPath.text()}\\{ntpath.basename(c)}"
+                    name, ext = os.path.splitext(filename)
+                    # pages = convert_from_path(f"{c}", poppler_path=r"poppler-21.03.0\Library\bin")
+                    # print(c)
+                    # for x in range(len(pages)):
+                    #     outName = f"{self.outputPath.text()}\\{ntpath.basename(c).split('.jp')}_page{str(x+1)}.jpg".replace("[", "").replace("]", "")
+                    #     print(str(x))
+                    #     pages[x].save(outName, 'JPEG')
+                    if ext == ".pdf":
+                    # if c[:-4] == ".pdf":
 
+                        a = f'gs\\gs9.53.3\\bin\\gswin32c.exe -sDEVICE=jpeg -dNOPAUSE -dBATCH -r{quality} -sOutputFile="{name}_page-%03d_Q-{quality}.jpeg" "{c}"'
+                        print(a)
+                        self.runOrder(a)
 
-        if self.qualityCombo.currentText() == "JPEG":
-            for c in being_process_thing_list:
-                filename = f"{self.outputPath.text()}\\{ntpath.basename(c)}"
-                name, ext = os.path.splitext(filename)
-                # pages = convert_from_path(f"{c}", poppler_path=r"poppler-21.03.0\Library\bin")
-                # print(c)
-                # for x in range(len(pages)):
-                #     outName = f"{self.outputPath.text()}\\{ntpath.basename(c).split('.jp')}_page{str(x+1)}.jpg".replace("[", "").replace("]", "")
-                #     print(str(x))
-                #     pages[x].save(outName, 'JPEG')
-                if ext == ".pdf":
-                # if c[:-4] == ".pdf":
+                    else:
+                        img = Image.open(c)
+                        img.save(f"{name}_Q-{quality}.jpeg", quality=quality, optimize=True, progressive=True)
 
-                    a = f'gs\\gs9.53.3\\bin\\gswin32c.exe -sDEVICE=jpeg -dNOPAUSE -dBATCH -r{quality} -sOutputFile="{name}_page-%03d_Q-{quality}.jpeg" "{c}"'
-                    print(a)
-                    self.runOrder(a)
-
-                else:
-                    img = Image.open(c)
-                    img.save(f"{name}_Q-{quality}.jpeg", quality=quality, optimize=True, progressive=True)
-
-                ext == ""
+                    ext == ""
                     
                 
 
-                processed = processed + 1
-                percentage = (processed/len(being_process_thing_list))*100
-                self.progressBar.setValue(percentage)
+                    processed = processed + 1
+                    percentage = (processed/len(being_process_thing_list))*100
+                    self.progressBar.setValue(percentage)
+            case "PNG":
+                #initial skeleton for PNG support (untested)
+
+                for c in being_process_thing_list:
+                    filename = f"{self.outputPath.text()}\\{ntpath.basename(c)}"
+                    name, ext = os.path.splitext(filename)
+
+                    if ext == ".pdf":
+                    # if c[:-4] == ".pdf":
+
+                        a = f'gs\\gs9.53.3\\bin\\gswin32c.exe -sDEVICE=png16 -dNOPAUSE -dBATCH -r{quality} -sOutputFile="{name}_page-%03d_Q-{quality}.jpeg" "{c}"'
+                        print(a)
+                        self.runOrder(a)
+
+                    else:
+                        img = Image.open(c)
+                        img.save(f"{name}_Q-{quality}.png", quality=quality, optimize=True, progressive=True)
+                        img.close()
+
+                    ext == ""
+
+            case _:
+                print("congrats, you are a developer now :)")
 
         # messages = [
         #     "THIS IS YOUR ORDER!",
@@ -148,8 +174,8 @@ class Pena(Ui_MainWindow):
         notip = Notify()
         notip.title = random.choice(messages)
         notip.message = f"Processed {len(being_process_thing_list)} file(s)"
-        notip.application_name = "PenaKecil-PreAlpha"
-        notip.icon = "Icon.ico"
+        notip.application_name = "PenaKecil"
+        notip.icon = "calamus.ico"
         notip.send()
         
 
@@ -162,12 +188,12 @@ class Pena(Ui_MainWindow):
         self.addPush.setText(_translate("MainWindow", "Add File"))
         self.label_4.setText(_translate("MainWindow", "Output Format : "))
         self.outputPath.setPlaceholderText(_translate("MainWindow", "Output file path goes here...."))
-        self.outPush.setText(_translate("MainWindow", "Browse"))
+        self.outPush.setText(_translate("MainWindow", "Browse")) 
         self.exportPush.setText(_translate("MainWindow", "Export !"))
-        self.label_3.setText(_translate("MainWindow", "PenaKecil 1.1 - PreAlpha2 BUILD-11102022"))
+        self.label_3.setText(_translate("MainWindow", "PenaKecil 1.2 (c) Read\Write Interactive"))
 
     def initialize(self, MainWindow):
-        formats = ["PDF", "JPEG"]
+        formats = ["PDF", "JPEG", "PNG"]
         
         for h in formats:
             self.qualityCombo.addItem(h)
@@ -191,7 +217,7 @@ class Pena(Ui_MainWindow):
 
         MainWindow.show()
 
-# WIP : Threading for progressbar
+# WIP : Threading for progressbar 
 
 # class work(QtCore.QThread):
 #     _signal = QtCore.pyqtSignal(int)
