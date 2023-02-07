@@ -1,5 +1,8 @@
 from PenaKecil.PenaUI import Ui_MainWindow
-from PyQt6 import QtCore, QtGui, QtWidgets
+from PyQt6 import *
+from PyQt6.QtGui import *
+from PyQt6.QtWidgets import *
+from PyQt6.QtCore import *
 
 
 import subprocess
@@ -8,6 +11,7 @@ import ntpath
 from notifypy import Notify
 import sys
 import random
+import time
 
 from PIL import Image
 
@@ -31,14 +35,18 @@ class Pena(Ui_MainWindow):
 
         import sys
         app = QtWidgets.QApplication(sys.argv)
-        MainWindow = QtWidgets.QMainWindow()
+        self.MainWindow = QtWidgets.QMainWindow()
         ui = self
-        ui.setupUi(MainWindow)
+        ui.setupUi(self.MainWindow)
         
 
-        self.initialize(MainWindow)
+        self.initialize(self.MainWindow)
         
+        self.threadpool = QThreadPool()
+
         sys.exit(app.exec())
+
+        
 
 
     def runOrder(self, command):
@@ -53,7 +61,7 @@ class Pena(Ui_MainWindow):
 
     def fileLoader(self):
         print("Open_FILE")
-        fileList = QFileDialog.getOpenFileNames(MainWindow, "Select PDF Files", "C:\\", "Portable Document Format (*.pdf);; JPEG Picture (*.jpeg; *.jpg)")
+        fileList = QFileDialog.getOpenFileNames(self.MainWindow, "Select PDF Files", "C:\\", "Portable Document Format (*.pdf);; JPEG Picture (*.jpeg; *.jpg)")
         print(fileList)
 
         self.pdfList.extend(fileList[0])
@@ -63,17 +71,125 @@ class Pena(Ui_MainWindow):
 
     def folderBrowser(self):
         print("Select_FOLDER")
-        exDir = QFileDialog.getExistingDirectory(MainWindow, "Select Directory")
+        exDir = QFileDialog.getExistingDirectory(self.MainWindow, "Select Directory")
         self.outputPath.setText(exDir)
+
+    def timeThief(self):
+        print(f"REEEEEEEEEEEEEEEEE")
+        sleep(10)
 
 
     def beginProcess(self):
         being_process_thing_list = self.pdfList
         quality = self.specifyDPI.value()
+        worker = PenaWorker(self.qualityCombo.currentText(), being_process_thing_list, quality)
+        self.threadpool.start(worker)
+
+        # messages = [
+        #     "THIS IS YOUR ORDER!",
+        #     "Take Care",
+        #     "Successful",
+        #     "Any other useful messages here?",
+        #     "This is notification",
+        #     "hello, anyone here?",
+        #     "YAAAAAHOOOOOOOOO",
+        #     "Java?",
+        #     "just some random messsage here",
+        #     "your random message here",
+        #     "here you go",
+        #     "errrr",
+        #     "just open it now",
+        # ]
+
+    def PenaNotify(self):
+        messages = [
+            "THIS IS YOUR ORDER!",
+            "Successful",
+            "Any other useful messages here?",
+            "This is a notification",
+            "YAAAAAHOOOOOOOOO",
+            "just some random messsage here",
+            "your random message here",
+            "here you go",
+        ]
+
+        notip = Notify()
+        notip.title = random.choice(messages)
+        notip.message = f"Processed {len(being_process_thing_list)} file(s)"
+        notip.application_name = "PenaKecil"
+        notip.icon = "calamus.ico"
+        notip.send()
+        
+
+    def retranslateUi(self, MainWindow):
+        _translate = QtCore.QCoreApplication.translate
+        MainWindow.setWindowTitle(_translate("MainWindow", "PenaKecil - Optimize!"))
+        self.label.setText(_translate("MainWindow", "PenaKecil"))
+        self.label_2.setText(_translate("MainWindow", "A Simple Front-End to Optimize Documents Size"))
+        self.label_5.setText(_translate("MainWindow", "Files Queue : "))
+        self.addPush.setText(_translate("MainWindow", "Add File"))
+        self.label_4.setText(_translate("MainWindow", "Output Format : "))
+        self.outputPath.setPlaceholderText(_translate("MainWindow", "Output file path goes here...."))
+        self.outPush.setText(_translate("MainWindow", "Browse")) 
+        self.exportPush.setText(_translate("MainWindow", "Export !"))
+        self.label_3.setText(_translate("MainWindow", "PenaKecil 1.2 (c) Read\Write Interactive"))
+
+    def initialize(self, MainWindow):
+        formats = ["PDF", "JPEG", "PNG", "TimeThief"]
+        
+        for h in formats:
+            self.qualityCombo.addItem(h)
+
+        # self.qualityCombo.setCurrentText(_translate("MainWindow", "Select Quality"))
+        # self.qualityCombo.setItemText(0, _translate("MainWindow", ""))
+        # self.qualityCombo.setItemText(1, _translate("MainWindow", "E-Book (150 dpi)"))
+        # self.qualityCombo.setItemText(2, _translate("MainWindow", ))
+        # self.qualityCombo.setItemText(3, _translate("MainWindow", )
+        # self.qualityCombo.setItemText(4, _translate("MainWindow", ))
+
+        self.retranslateUi(MainWindow)
+        self.qualityCombo.setCurrentIndex(0)
+        QtCore.QMetaObject.connectSlotsByName(MainWindow)
+
+        self.addPush.clicked.connect(self.fileLoader)
+        self.exportPush.clicked.connect(self.beginProcess)
+        self.outPush.clicked.connect(self.folderBrowser)
+        self.outputPath.setText(os.path.expanduser("~") + "\Documents")
+        self.removeList.clicked.connect(self.removeFileList)
+
+        MainWindow.show()
+
+# WIP : Threading for progressbar 
+
+# class work(QtCore.QThread):
+#     _signal = QtCore.pyqtSignal(int)
+#     def __init__(self):
+#         super(Thread, self).__init__()
+    
+#     def __del__(self):
+#         self.wait()
+    
+#     def run(self):
+#         pass
+class PenaWorker(QRunnable):
+    def __init__(self, target, inputs, quality):
+        super(PenaWorker, self).__init__()
+        self.inputs = inputs
+        self.target = target
+        self.quality = quality
+
+    @pyqtSlot()
+    def run(self):
+        #print(f"I sleep with {self.input} as my argument")
+        #time.sleep(10)
+        #print(f"I have done with my Sleep")
+        quality = self.quality
+        being_process_thing_list = self.inputs
+
         print("mengProses . . .")
         processed = 0
 
-        match self.qualityCombo.currentText():
+        match self.target:
             case "PDF":
                 for c in being_process_thing_list:
                     filename = f"{self.outputPath.text()}\\{ntpath.basename(c)}"
@@ -141,91 +257,9 @@ class Pena(Ui_MainWindow):
 
                     ext == ""
 
+            case "TimeThief":
+                pass
+
+
             case _:
                 print("congrats, you are a developer now :)")
-
-        # messages = [
-        #     "THIS IS YOUR ORDER!",
-        #     "Take Care",
-        #     "Successful",
-        #     "Any other useful messages here?",
-        #     "This is notification",
-        #     "hello, anyone here?",
-        #     "YAAAAAHOOOOOOOOO",
-        #     "Java?",
-        #     "just some random messsage here",
-        #     "your random message here",
-        #     "here you go",
-        #     "errrr",
-        #     "just open it now",
-        # ]
-
-        messages = [
-            "THIS IS YOUR ORDER!",
-            "Successful",
-            "Any other useful messages here?",
-            "This is a notification",
-            "YAAAAAHOOOOOOOOO",
-            "just some random messsage here",
-            "your random message here",
-            "here you go",
-        ]
-
-        notip = Notify()
-        notip.title = random.choice(messages)
-        notip.message = f"Processed {len(being_process_thing_list)} file(s)"
-        notip.application_name = "PenaKecil"
-        notip.icon = "calamus.ico"
-        notip.send()
-        
-
-    def retranslateUi(self, MainWindow):
-        _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "PenaKecil - Optimize!"))
-        self.label.setText(_translate("MainWindow", "PenaKecil"))
-        self.label_2.setText(_translate("MainWindow", "A Simple Front-End to Optimize Documents Size"))
-        self.label_5.setText(_translate("MainWindow", "Files Queue : "))
-        self.addPush.setText(_translate("MainWindow", "Add File"))
-        self.label_4.setText(_translate("MainWindow", "Output Format : "))
-        self.outputPath.setPlaceholderText(_translate("MainWindow", "Output file path goes here...."))
-        self.outPush.setText(_translate("MainWindow", "Browse")) 
-        self.exportPush.setText(_translate("MainWindow", "Export !"))
-        self.label_3.setText(_translate("MainWindow", "PenaKecil 1.2 (c) Read\Write Interactive"))
-
-    def initialize(self, MainWindow):
-        formats = ["PDF", "JPEG", "PNG"]
-        
-        for h in formats:
-            self.qualityCombo.addItem(h)
-
-        # self.qualityCombo.setCurrentText(_translate("MainWindow", "Select Quality"))
-        # self.qualityCombo.setItemText(0, _translate("MainWindow", ""))
-        # self.qualityCombo.setItemText(1, _translate("MainWindow", "E-Book (150 dpi)"))
-        # self.qualityCombo.setItemText(2, _translate("MainWindow", ))
-        # self.qualityCombo.setItemText(3, _translate("MainWindow", )
-        # self.qualityCombo.setItemText(4, _translate("MainWindow", ))
-
-        self.retranslateUi(MainWindow)
-        self.qualityCombo.setCurrentIndex(0)
-        QtCore.QMetaObject.connectSlotsByName(MainWindow)
-
-        self.addPush.clicked.connect(self.fileLoader)
-        self.exportPush.clicked.connect(self.beginProcess)
-        self.outPush.clicked.connect(self.folderBrowser)
-        self.outputPath.setText(os.path.expanduser("~") + "\Documents")
-        self.removeList.clicked.connect(self.removeFileList)
-
-        MainWindow.show()
-
-# WIP : Threading for progressbar 
-
-# class work(QtCore.QThread):
-#     _signal = QtCore.pyqtSignal(int)
-#     def __init__(self):
-#         super(Thread, self).__init__()
-    
-#     def __del__(self):
-#         self.wait()
-    
-#     def run(self):
-#         pass
