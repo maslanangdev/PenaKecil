@@ -1,3 +1,4 @@
+from unittest import result
 from PenaKecil.PenaUI import Ui_MainWindow
 from PyQt6 import *
 from PyQt6.QtGui import *
@@ -46,7 +47,9 @@ class Pena(Ui_MainWindow):
 
         sys.exit(app.exec())
 
-        
+       
+    def updateProgressBar(self, percentage):
+        self.progressBar.setValue(int(percentage))
 
 
     def runOrder(self, command):
@@ -80,9 +83,12 @@ class Pena(Ui_MainWindow):
 
 
     def beginProcess(self):
+
         being_process_thing_list = self.pdfList
         quality = self.specifyDPI.value()
-        worker = PenaWorker(self.qualityCombo.currentText(), being_process_thing_list, quality)
+
+        worker = PenaWorker(self.qualityCombo.currentText(), being_process_thing_list, quality, self.progressBar, self.outputPath)
+        worker.signal.progress.connect(self.updateProgressBar)
         self.threadpool.start(worker)
 
         # messages = [
@@ -171,12 +177,25 @@ class Pena(Ui_MainWindow):
     
 #     def run(self):
 #         pass
+
+
+class PenaSignal(QObject):
+
+    finished = pyqtSignal()
+    error = pyqtSignal(tuple)
+    result = pyqtSignal(object)
+    progress = pyqtSignal(int)
+
+
 class PenaWorker(QRunnable):
-    def __init__(self, target, inputs, quality):
+    def __init__(self, target, inputs, quality, pBarObj, exportDir):
         super(PenaWorker, self).__init__()
         self.inputs = inputs
         self.target = target
         self.quality = quality
+        self.progressBar = pBarObj
+        self.outputPath = exportDir
+        self.signal = PenaSignal()
 
     @pyqtSlot()
     def run(self):
@@ -207,7 +226,7 @@ class PenaWorker(QRunnable):
                 
                     processed = processed + 1
                     percentage = (processed/len(being_process_thing_list))*100
-                    self.progressBar.setValue(percentage)
+                    #self.progressBar.setValue(int(percentage))
             case "JPEG":
                 for c in being_process_thing_list:
                     filename = f"{self.outputPath.text()}\\{ntpath.basename(c)}"
@@ -226,16 +245,20 @@ class PenaWorker(QRunnable):
                         self.runOrder(a)
 
                     else:
-                        img = Image.open(c)
-                        img.save(f"{name}_Q-{quality}.jpeg", quality=quality, optimize=True, progressive=True)
+                        print(f"Begin! {name}_Q-{quality}.jpeg")
+                        img = Image.open(c, mode='r')
+                        print(c)
+                        img.save(f"{name}_Q-{quality}.jpeg", quality=quality, optimize=True, progressive=True, format="JPEG")
 
                     ext == ""
-                    
-                
 
                     processed = processed + 1
                     percentage = (processed/len(being_process_thing_list))*100
-                    self.progressBar.setValue(percentage)
+                    #self.
+
+                    self.signal.result.emit("{name}_Q-{quality}.jpeg")
+                    self.signal.progress.emit(int(percentage))
+
             case "PNG":
                 #initial skeleton for PNG support (untested)
 
