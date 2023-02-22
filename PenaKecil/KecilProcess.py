@@ -143,7 +143,8 @@ class Pena(Ui_MainWindow):
         self.label_3.setText(_translate("MainWindow", "PenaKecil 1.2 (c) Read\Write Interactive"))
 
     def initialize(self, MainWindow):
-        formats = ["PDF", "JPEG", "PNG", "TimeThief"]
+        #formats = ["PDF", "JPEG", "PNG", "TimeThief"]
+        formats = ["PDF", "JPEG"]
         
         for h in formats:
             self.qualityCombo.addItem(h)
@@ -200,6 +201,25 @@ class PenaWorker(QRunnable):
                     name, ext = os.path.splitext(filename)
                     if ext == ".pdf":
                         print(name+ext)                  
+                        a = f'gs\\gs9.53.3\\bin\\gswin32c.exe -sDEVICE=pdfwrite -dCompabilityLevel=1.4 -dColorImageResolution={quality} -dPDFSETTINGS=/screen -dOptimize=true -dColorImageDownsampleType=/Average  -dNOPAUSE -dBATCH -sOutputFile="{name}_Q{quality}.pdf" "{c}"'
+                        print(a)
+                        self.runOrder(a)
+                    else:
+                        img = Image.open(c)
+                        img.save(f"{name}_Q-{quality}.pdf", quality=quality, optimize=True, progressive=True)
+                
+                    processed = processed + 1
+                    percentage = (processed/len(being_process_thing_list))*100
+                    self.signal.progress.emit(int(percentage))
+
+                    #self.progressBar.setValue(int(percentage))
+
+            case "PDF (Lossless)":
+                for c in being_process_thing_list:
+                    filename = f"{self.outputPath.text()}\\{ntpath.basename(c)}"
+                    name, ext = os.path.splitext(filename)
+                    if ext == ".pdf":
+                        print(name+ext)                  
                         #a = f'gs\\gs9.53.3\\bin\\gswin32c.exe -sDEVICE=pdfwrite -dCompabilityLevel=1.4 -dColorImageResolution={quality} -dPDFSETTINGS=/screen -dOptimize=true -dColorImageDownsampleType=/Average  -dNOPAUSE -dBATCH -sOutputFile="{name}_Q{quality}.pdf" "{c}"'
                         #print(a)
                         #self.runOrder(a)
@@ -223,6 +243,7 @@ class PenaWorker(QRunnable):
                     self.signal.progress.emit(int(percentage))
 
                     #self.progressBar.setValue(int(percentage))
+
             case "JPEG":
                 for c in being_process_thing_list:
                     filename = f"{self.outputPath.text()}\\{ntpath.basename(c)}"
