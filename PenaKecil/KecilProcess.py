@@ -85,6 +85,7 @@ class Pena(Ui_MainWindow):
 
 
     def beginProcess(self):
+        self.progressBar.setValue(int(0))
 
         being_process_thing_list = self.pdfList
         quality = self.specifyDPI.value()
