@@ -186,6 +186,11 @@ class PenaWorker(QRunnable):
         self.outputPath = exportDir
         self.signal = PenaSignal()
 
+    def runOrder(self, command):
+        stinfo = subprocess.STARTUPINFO()
+        stinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+        subprocess.Popen(command, startupinfo=stinfo, stdout=sys.stdout, stderr=sys.stdout).wait()
+
     @pyqtSlot()
     def run(self):
         quality = self.quality
@@ -201,7 +206,7 @@ class PenaWorker(QRunnable):
                     name, ext = os.path.splitext(filename)
                     if ext == ".pdf":
                         print(name+ext)                  
-                        a = f'gs\\gs9.53.3\\bin\\gswin32c.exe -sDEVICE=pdfwrite -dCompabilityLevel=1.4 -dColorImageResolution={quality} -dPDFSETTINGS=/screen -dOptimize=true -dColorImageDownsampleType=/Average  -dNOPAUSE -dBATCH -sOutputFile="{name}_Q{quality}.pdf" "{c}"'
+                        a = f'gs\\bin\\gswin64c.exe -sDEVICE=pdfwrite -dCompabilityLevel=1.4 -dColorImageResolution={quality} -dPDFSETTINGS=/screen -dOptimize=true -dColorImageDownsampleType=/Average  -dNOPAUSE -dBATCH -sOutputFile="{name}_Q{quality}.pdf" "{c}"'
                         print(a)
                         self.runOrder(a)
                     else:
@@ -257,7 +262,7 @@ class PenaWorker(QRunnable):
                     if ext == ".pdf":
                     # if c[:-4] == ".pdf":
 
-                        a = f'gs\\gs9.53.3\\bin\\gswin32c.exe -sDEVICE=jpeg -dNOPAUSE -dBATCH -r{quality} -sOutputFile="{name}_page-%03d_Q-{quality}.jpeg" "{c}"'
+                        a = f'gs\\bin\\gswin64c.exe -sDEVICE=jpeg -dNOPAUSE -dBATCH -r{quality} -sOutputFile="{name}_page-%03d_Q-{quality}.jpeg" "{c}"'
                         print(a)
                         self.runOrder(a)
 
