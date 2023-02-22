@@ -6,6 +6,8 @@ from PyQt6.QtWidgets import *
 from PyQt6.QtCore import *
 
 
+from pypdf import PdfReader, PdfWriter
+
 import subprocess
 import os
 import ntpath
@@ -165,20 +167,6 @@ class Pena(Ui_MainWindow):
 
         MainWindow.show()
 
-# WIP : Threading for progressbar 
-
-# class work(QtCore.QThread):
-#     _signal = QtCore.pyqtSignal(int)
-#     def __init__(self):
-#         super(Thread, self).__init__()
-    
-#     def __del__(self):
-#         self.wait()
-    
-#     def run(self):
-#         pass
-
-
 class PenaSignal(QObject):
 
     finished = pyqtSignal()
@@ -199,9 +187,6 @@ class PenaWorker(QRunnable):
 
     @pyqtSlot()
     def run(self):
-        #print(f"I sleep with {self.input} as my argument")
-        #time.sleep(10)
-        #print(f"I have done with my Sleep")
         quality = self.quality
         being_process_thing_list = self.inputs
 
@@ -214,18 +199,29 @@ class PenaWorker(QRunnable):
                     filename = f"{self.outputPath.text()}\\{ntpath.basename(c)}"
                     name, ext = os.path.splitext(filename)
                     if ext == ".pdf":
-                    # if c[:-4] == ".pdf":
-                        print(name+ext)                    
-                        a = f'gs\\gs9.53.3\\bin\\gswin32c.exe -sDEVICE=pdfwrite -dCompabilityLevel=1.4 -dColorImageResolution={quality} -dPDFSETTINGS=/screen -dOptimize=true -dColorImageDownsampleType=/Average  -dNOPAUSE -dBATCH -sOutputFile="{name}_Q{quality}.pdf" "{c}"'
-                        print(a)
-                        # os.system(a)
-                        self.runOrder(a)
+                        print(name+ext)                  
+                        #a = f'gs\\gs9.53.3\\bin\\gswin32c.exe -sDEVICE=pdfwrite -dCompabilityLevel=1.4 -dColorImageResolution={quality} -dPDFSETTINGS=/screen -dOptimize=true -dColorImageDownsampleType=/Average  -dNOPAUSE -dBATCH -sOutputFile="{name}_Q{quality}.pdf" "{c}"'
+                        #print(a)
+                        #self.runOrder(a)
+
+                        pdfRead = PdfReader(c)
+                        pdfWrite = PdfWriter()
+
+                        for page in pdfRead.pages:
+                            page.compress_content_streams()
+                            pdfWrite.add_page(page)
+                         
+                        with open(f"{name}_Q{quality}.pdf", "wb") as f:
+                            pdfWrite.write(f)
+
                     else:
                         img = Image.open(c)
                         img.save(f"{name}_Q-{quality}.pdf", quality=quality, optimize=True, progressive=True)
                 
                     processed = processed + 1
                     percentage = (processed/len(being_process_thing_list))*100
+                    self.signal.progress.emit(int(percentage))
+
                     #self.progressBar.setValue(int(percentage))
             case "JPEG":
                 for c in being_process_thing_list:
